@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>تبدیل زیرنویس</title>
+    <title>مترجم و پردازشگر زیرنویس</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap');
 
@@ -11,6 +11,7 @@
             --bg-dark: #111827;
             --surface-dark: #1f2937;
             --primary-dark: #6366f1;
+            --secondary-dark: #374151;
             --primary-hover-dark: #4f46e5;
             --text-dark: #f9fafb;
             --text-muted-dark: #9ca3af;
@@ -19,6 +20,7 @@
             --bg-light: #f3f4f6;
             --surface-light: #ffffff;
             --primary-light: #4f46e5;
+            --secondary-light: #e5e7eb;
             --primary-hover-light: #4338ca;
             --text-light: #111827;
             --text-muted-light: #6b7280;
@@ -27,6 +29,7 @@
             --bg-color: var(--bg-dark);
             --surface-color: var(--surface-dark);
             --primary-color: var(--primary-dark);
+            --secondary-color: var(--secondary-dark);
             --primary-hover: var(--primary-hover-dark);
             --text-color: var(--text-dark);
             --text-muted: var(--text-muted-dark);
@@ -37,22 +40,15 @@
             --bg-color: var(--bg-light);
             --surface-color: var(--surface-light);
             --primary-color: var(--primary-light);
+            --secondary-color: var(--secondary-light);
             --primary-hover: var(--primary-hover-light);
             --text-color: var(--text-light);
             --text-muted: var(--text-muted-light);
             --border-color: var(--border-light);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            height: 100%;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { height: 100%; }
         body {
             font-family: 'Vazirmatn', sans-serif;
             color: var(--text-color);
@@ -61,33 +57,10 @@
             overflow-x: hidden;
         }
 
-        .app-wrapper {
-            padding: 16px;
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        .app-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 8px;
-        }
-
-        .app-header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .menu-btn {
-            background: none;
-            border: none;
-            color: var(--text-color);
-            cursor: pointer;
-            padding: 8px;
-        }
-
+        .app-wrapper { padding: 16px; width: 100%; max-width: 600px; margin: 0 auto; }
+        .app-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 8px; }
+        .app-header h1 { font-size: 1.5rem; font-weight: 700; }
+        .menu-btn { background: none; border: none; color: var(--text-color); cursor: pointer; padding: 8px; }
         .main-content {
             background-color: var(--surface-color);
             border: 1px solid var(--border-color);
@@ -103,201 +76,126 @@
         }
 
         .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 14px 20px;
-            margin-bottom: 24px;
-            border-radius: 12px;
-            border: none;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            color: white;
-            background-color: var(--primary-color);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 14px 20px; margin-bottom: 16px;
+            border-radius: 12px; border: none; font-size: 1rem; font-weight: 500;
+            cursor: pointer; transition: all 0.2s ease-in-out;
+            color: white; background-color: var(--primary-color);
         }
+        .btn:last-child { margin-bottom: 0; }
         .btn:hover { background-color: var(--primary-hover); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn.secondary { background-color: var(--secondary-color); }
+        .btn.secondary:hover { background-color: var(--text-muted); }
 
-        .empty-state p {
-            color: var(--text-muted);
-            font-size: 1rem;
-        }
-
-        #fileList {
-            width: 100%;
-            max-height: 400px;
-            overflow-y: auto;
-        }
+        .empty-state p { color: var(--text-muted); font-size: 1rem; }
+        #fileList { width: 100%; max-height: 400px; overflow-y: auto; }
 
         .file-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background-color: var(--bg-color);
-            border-radius: 12px;
-            margin-bottom: 12px;
-            border: 1px solid var(--border-color);
+            display: flex; align-items: center; gap: 12px; padding: 12px;
+            background-color: var(--bg-color); border-radius: 12px;
+            margin-bottom: 12px; border: 1px solid var(--border-color);
         }
         .file-item.converted { border-color: #22c55e; }
-        .file-info { flex-grow: 1; overflow: hidden; }
+        .file-item.error { border-color: #ef4444; }
+        .file-info { flex-grow: 1; overflow: hidden; text-align: right; }
         .file-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .file-status { font-size: 0.875rem; color: var(--text-muted); }
         .file-item.converted .file-status { color: #22c55e; }
-        .delete-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; }
+        .file-item.error .file-status { color: #ef4444; }
+        .delete-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; flex-shrink: 0; }
         .delete-btn:hover { color: #ef4444; }
 
-        /* Sidenav Menu */
+        /* Sidenav & Modal Styles */
         .sidenav {
-            height: 100%;
-            width: 280px;
-            position: fixed;
-            z-index: 1001;
-            top: 0;
-            left: -280px;
-            background-color: var(--surface-color);
-            overflow-x: hidden;
-            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
+            height: 100%; width: 280px; position: fixed; z-index: 1001;
+            top: 0; left: -280px; background-color: var(--surface-color);
+            overflow-x: hidden; transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 20px; display: flex; flex-direction: column;
         }
-
         .sidenav-open .sidenav { left: 0; }
-
         .sidenav-header {
-            padding-bottom: 20px;
-            margin-bottom: 20px;
+            padding-bottom: 20px; margin-bottom: 20px;
             border-bottom: 1px solid var(--border-color);
-            font-size: 1.25rem;
-            font-weight: 700;
+            font-size: 1.25rem; font-weight: 700;
         }
-
         .sidenav a {
-            padding: 12px 8px;
-            text-decoration: none;
-            font-size: 1rem;
-            color: var(--text-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-radius: 8px;
-            transition: background-color 0.2s;
+            padding: 12px 8px; text-decoration: none; font-size: 1rem;
+            color: var(--text-color); display: flex; align-items: center;
+            gap: 12px; border-radius: 8px; transition: background-color 0.2s;
         }
         .sidenav a:hover { background-color: var(--bg-color); }
-
-        .sidenav-version {
-            margin-top: auto;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.875rem;
-        }
-
+        .sidenav-version { margin-top: auto; text-align: center; color: var(--text-muted); font-size: 0.875rem; }
         .overlay {
-            position: fixed;
-            display: none;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 1000;
+            position: fixed; display: none; width: 100%; height: 100%;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5); z-index: 1000;
         }
         .sidenav-open .overlay { display: block; }
-        
-        /* Modal */
         .modal {
-            position: fixed;
-            z-index: 1002;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
+            position: fixed; z-index: 1002; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto;
+            background-color: rgba(0,0,0,0.6); display: none;
+            align-items: center; justify-content: center;
         }
         .modal.show { display: flex; }
         .modal-content {
-            background-color: var(--surface-color);
-            margin: auto;
-            padding: 24px;
-            border: 1px solid var(--border-color);
-            width: 90%;
-            max-width: 500px;
-            border-radius: 16px;
+            background-color: var(--surface-color); margin: auto;
+            border: 1px solid var(--border-color); width: 90%; max-width: 500px;
+            border-radius: 16px; display: flex; flex-direction: column;
         }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border-color); }
         .modal-header h2 { font-size: 1.25rem; }
         .close-btn { font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
+        .modal-body { padding: 24px; }
+
+        /* Settings Modal Specific */
         .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid var(--border-color);
+            display: flex; flex-direction: column; align-items: flex-start;
+            padding: 16px 0; border-bottom: 1px solid var(--border-color);
         }
         .setting-item:last-child { border-bottom: none; }
-        
-        /* Toggle Switch */
+        .setting-item-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 28px; }
         .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--primary-color); }
         input:checked + .slider:before { transform: translateX(22px); }
+        .api-key-container { width: 100%; margin-top: 12px; }
+        .api-key-input {
+            width: 100%; padding: 10px; border-radius: 8px;
+            border: 1px solid var(--border-color); background-color: var(--bg-color);
+            color: var(--text-color); font-family: 'Vazirmatn', sans-serif;
+            margin-bottom: 10px;
+        }
+        .save-btn {
+            padding: 8px 16px; border-radius: 8px; border: none;
+            background-color: var(--primary-color); color: white;
+            cursor: pointer; transition: background-color 0.2s;
+        }
+        .save-btn:hover { background-color: var(--primary-hover); }
 
-        /* Language Selector */
-        .lang-selector button {
-            background: none;
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 6px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
+        /* Batch Editor Modal Specific */
+        #batchEditorModal .modal-body { max-height: 40vh; overflow-y: auto; padding: 16px 24px; }
+        #batchEditorModal .modal-footer {
+            display: flex; flex-direction: column; gap: 16px; align-items: center;
+            padding: 16px 24px; border-top: 1px solid var(--border-color);
         }
-        .lang-selector button.active {
-            color: white;
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
+        #batchFileList { list-style-type: none; padding: 0; margin: 0; width: 100%; }
+        #batchFileList li {
+            background-color: var(--bg-color); padding: 8px 12px; border-radius: 8px;
+            margin-bottom: 8px; font-size: 0.9rem; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis;
         }
-        .lang-selector button:first-child { margin-left: 8px; }
-
-        .about-content { text-align: center; }
-        .about-content p {
-            line-height: 1.8;
-            color: var(--text-muted);
+        .offset-controls { display: flex; align-items: center; gap: 4px; }
+        .offset-controls .btn { width: 44px; height: 44px; padding: 0; font-size: 1.5rem; line-height: 1; margin-bottom: 0; }
+        .offset-controls input {
+            width: 80px; height: 44px; padding: 5px; border-radius: 6px;
+            border: 1px solid var(--border-color); background-color: var(--bg-color);
+            color: var(--text-color); text-align: center; font-family: 'Vazirmatn', sans-serif; font-size: 1rem;
         }
-        .about-content p strong {
-            color: var(--text-color);
-        }
-        .link-btn {
-            display: inline-block;
-            padding: 10px 24px;
-            background-color: var(--primary-color);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: background-color 0.2s;
-            font-weight: 500;
-        }
-        .link-btn:hover {
-            background-color: var(--primary-hover);
-        }
+        #totalOffsetDisplay { font-size: 1.1rem; font-weight: 500; color: var(--primary-color); min-height: 24px; }
 
         .hidden { display: none !important; }
     </style>
@@ -310,11 +208,15 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             <span data-lang-key="settings">تنظیمات</span>
         </a>
+        <a href="#" id="toolsBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+            <span data-lang-key="tools">ابزارها</span>
+        </a>
         <a href="#" id="aboutBtn">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-            <span data-lang-key="about">درباره برنامه</span>
+            <span data-lang-key="about">درباره</span>
         </a>
-        <div class="sidenav-version" data-lang-key="version"></div>
+        <div class="sidenav-version" data-lang-key="version">نسخه 3.0.0</div>
     </div>
     <div id="overlay" class="overlay"></div>
     
@@ -323,7 +225,7 @@
             <button class="menu-btn" id="menuBtn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
-            <h1 data-lang-key="appTitle">تبدیل زیرنویس</h1>
+            <h1 data-lang-key="appTitle">پردازشگر زیرنویس</h1>
         </header>
 
         <div class="main-content">
@@ -331,23 +233,25 @@
                  <div id="fileList"></div>
             </div>
             <div id="emptyState">
-                <p data-lang-key="noFiles">هیچ فایلی انتخاب نشده است.</p>
+                <p data-lang-key="noFiles">هیچ فایلی برای ترجمه انتخاب نشده است.</p>
             </div>
         </div>
 
         <div class="actions" style="margin-top: 24px;">
             <label for="fileInput" class="btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                <span data-lang-key="selectFile">انتخاب فایل</span>
+                <span data-lang-key="selectFile">انتخاب فایل برای ترجمه</span>
             </label>
-            <button id="convertBtn" class="btn hidden">
-                <span data-lang-key="convertAll">تبدیل همه</span>
+            <button id="processBtn" class="btn hidden">
+                <span data-lang-key="processAll">ترجمه و تبدیل</span>
             </button>
         </div>
         <input type="file" id="fileInput" accept=".srt,.vtt" multiple class="hidden">
+        <input type="file" id="assFileInput" accept=".ass" class="hidden" multiple>
+        <input type="file" id="directConvertInput" accept=".srt,.vtt" class="hidden" multiple>
     </div>
 
-    <!-- Settings Modal -->
+    <!-- Modals -->
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -356,37 +260,76 @@
             </div>
             <div class="modal-body">
                 <div class="setting-item">
-                    <span data-lang-key="darkMode">حالت تاریک</span>
-                    <label class="switch">
-                        <input type="checkbox" id="themeToggle" checked>
-                        <span class="slider"></span>
-                    </label>
+                    <div class="setting-item-header">
+                        <span data-lang-key="darkMode">حالت تاریک</span>
+                        <label class="switch">
+                            <input type="checkbox" id="themeToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
                 </div>
-                <div class="setting-item">
-                    <span data-lang-key="language">زبان</span>
-                    <div class="lang-selector">
-                        <button id="lang-en">English</button>
-                        <button id="lang-fa" class="active">فارسی</button>
+                 <div class="setting-item">
+                    <div class="setting-item-header">
+                        <span data-lang-key="apiKey">کلید API جمنای</span>
+                    </div>
+                    <div class="api-key-container">
+                        <input type="password" id="apiKeyInput" class="api-key-input" placeholder="کلید خود را اینجا وارد کنید...">
+                        <button id="saveApiKeyBtn" class="save-btn" data-lang-key="save">ذخیره</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- About Modal -->
+    
     <div id="aboutModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 data-lang-key="about">درباره برنامه</h2>
+                <h2 data-lang-key="about">درباره</h2>
                 <span class="close-btn">&times;</span>
             </div>
             <div class="modal-body about-content">
-                <p data-lang-key="aboutLine1"></p>
-                <p data-lang-key="aboutLine2" style="margin-top: 24px;"></p>
-                <p data-lang-key="aboutVersion" style="margin-top: 8px;"></p>
-                <p style="margin-top: 24px;">
-                    <a href="https://abolfazlasdbv2008.github.io/Subtitle/" target="_blank" rel="noopener noreferrer" class="link-btn" data-lang-key="visitWebsite"></a>
-                </p>
+                 <p>این برنامه برای ترجمه، تبدیل و ویرایش فایل‌های زیرنویس ساخته شده است.</p>
+                 <p style="margin-top: 24px;">توسعه داده شده توسط <strong>ابوالفضل مقدری</strong>.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="toolsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-lang-key="tools">ابزارها</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <label for="assFileInput" class="btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-6M6 20v-4M18 20v-2"></path><path d="M12 14V4"></path><path d="M6 16V4"></path><path d="M18 18V4"></path></svg>
+                    <span data-lang-key="batchEditAss">ویرایش گروهی فایل‌های ASS</span>
+                </label>
+                <label for="directConvertInput" class="btn secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4-4-4 4"></path><path d="M17 20V4"></path><path d="m3 8 4 4 4-4"></path><path d="M7 4v16"></path></svg>
+                    <span data-lang-key="convertSrtVtt">تبدیل سریع SRT/VTT به ASS</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div id="batchEditorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-lang-key="batchEditorTitle">ویرایش گروهی فایل‌های ASS</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <ul id="batchFileList"></ul>
+            </div>
+            <div class="modal-footer">
+                <div id="totalOffsetDisplay" data-lang-key="offsetInitial">آفست کل: ۰ ثانیه</div>
+                <div class="offset-controls">
+                    <button id="offsetBackwardBtn" class="btn" title="زمان‌بندی به عقب">-</button>
+                    <input type="number" id="bulkTimeOffset" value="1" step="0.1">
+                    <button id="offsetForwardBtn" class="btn" title="زمان‌بندی به جلو">+</button>
+                </div>
+                 <button id="processBatchBtn" class="btn" data-lang-key="applyAndDownload">اعمال و دانلود</button>
             </div>
         </div>
     </div>
@@ -394,188 +337,280 @@
     <script>
         const translations = {
             fa: {
-                menu: "منو",
+                appTitle: "پردازشگر زیرنویس",
+                processAll: "ترجمه و تبدیل",
+                apiKey: "کلید API جمنای",
+                save: "ذخیره",
+                statusReady: "⏳ آماده",
+                statusTranslating: "در حال ترجمه...",
+                statusConverting: "در حال تبدیل به ASS...",
+                statusConverted: "✅ انجام شد",
+                statusError: "خطا در پردازش",
+                errorApiKey: "خطا: کلید API جمنای یافت نشد. لطفاً آن را در تنظیمات وارد کنید.",
+                selectFile: "انتخاب فایل برای ترجمه",
+                noFiles: "هیچ فایلی برای ترجمه انتخاب نشده است.",
                 settings: "تنظیمات",
-                about: "درباره برنامه",
-                version: "نسخه 1.1.1",
-                appTitle: "تبدیل زیرنویس",
-                noFiles: "هیچ فایلی انتخاب نشده است.",
-                selectFile: "انتخاب فایل",
-                convertAll: "تبدیل همه",
                 darkMode: "حالت تاریک",
-                language: "زبان",
-                aboutLine1: "این برنامه ابزاری کارآمد برای تبدیل زیرنویس‌ها از فرمت‌های VTT و SRT به ASS است. با استفاده از این برنامه، کاربران می‌توانند به راحتی و سریعاً فرمت زیرنویس‌های خود را به قالبی حرفه‌ای و مناسب برای نمایش‌های پیشرفته تغییر دهند. این ابزار برای کاربران علاقه‌مند به دقت و کیفیت نمایش زیرنویس، انتخابی ایده‌آل است.",
-                aboutLine2: "توسعه داده شده توسط <strong>ابوالفضل مقدری</strong>.",
-                aboutVersion: "نسخه فعلی: <strong>1.1.1</strong>",
-                visitWebsite: "وب سایت تبدیل زیرنویس",
-                statusConverted: "✅ تبدیل شده",
-                statusReady: "⏳ آماده تبدیل",
+                about: "درباره",
+                menu: "منو",
+                version: "نسخه 3.0.0",
+                tools: "ابزارها",
+                batchEditAss: "ویرایش گروهی فایل‌های ASS",
+                convertSrtVtt: "تبدیل سریع SRT/VTT به ASS",
+                batchEditorTitle: "ویرایش گروهی فایل‌های ASS",
+                applyAndDownload: "اعمال و دانلود",
+                offsetInitial: "آفست کل: ۰ ثانیه",
+                offsetLabel: "آفست کل: ",
             },
-            en: {
-                menu: "Menu",
-                settings: "Settings",
-                about: "About App",
-                version: "Version 1.1.1",
-                appTitle: "Subtitle Converter",
-                noFiles: "No file selected.",
-                selectFile: "Select File",
-                convertAll: "Convert All",
-                darkMode: "Dark Mode",
-                language: "Language",
-                aboutLine1: "This program is an efficient tool for converting subtitles from VTT and SRT formats to ASS. Using this application, users can easily and quickly change their subtitle format to a professional and suitable template for advanced displays. This tool is an ideal choice for users interested in the accuracy and quality of subtitle display.",
-                aboutLine2: "Developed by <strong>Abolfazl Moghadari</strong>.",
-                aboutVersion: "Current Version: <strong>1.1.1</strong>",
-                visitWebsite: "Subtitle Converter Website",
-                statusConverted: "✅ Converted",
-                statusReady: "⏳ Ready to convert",
-            }
         };
 
-        class SubtitleConverter {
+        const GEMINI_PROMPT = `
+## شخصیت و وظیفه شما
+شما یک مترجم حرفه‌ای و متخصص بومی‌سازی فیلم و سریال، به‌ویژه انیمه، برای مخاطبان جوان و امروزی ایران هستید. هدف شما تنها برگردان کلمات نیست، بلکه انتقال دقیق «حس و حال» و «قصد» هر دیالوگ است به شکلی که بیننده فراموش کند در حال تماشای یک اثر ترجمه‌شده است.
+
+### فلسفه ترجمه
+- **طبیعی و روان:** ترجمه باید به زبان گفتاری روزمره باشد. از خود بپرس: "آیا یک نوجوان ایرانی واقعاً این‌طور حرف می‌زند؟"
+- **وفاداری به لحن:** لحن شخصیت (گستاخ، مؤدب، کودک، مضطرب، شوخ‌طبع) باید در انتخاب کلمات فارسی شما کاملاً مشهود باشد.
+- **بومی‌سازی هوشمندانه:** اصطلاحات، شوخی‌ها و ارجاعات فرهنگی باید با معادل‌های خلاقانه و قابل فهم برای مخاطب ایرانی جایگزین شوند.
+
+---
+
+### قوانین طلایی ترجمه (با مثال)
+
+1.  **ترجمه مفهومی، نه کلمه‌به‌کلمه:**
+    -   **انگلیسی:** "I guess it can't be helped."
+    -   **ترجمه بد:** "حدس می‌زنم نمی‌توان به آن کمک کرد."
+    -   **ترجمه خوب:** "انگار چاره‌ای نیست." یا "کاریش نمیشه کرد."
+
+2.  **ترجمه آوایی و یکپارچه اسامی:**
+    -   **مهم:** تمام اسامی خاص (مانند Hikaru)، نام‌های مکان‌ها (مانند Enperinu-Chep-Chep-sB)، و کلمات انگلیسی (مانند Genesis) باید به فارسی برگردانده و نوشته شوند.
+    -   **یکپارچگی:** برای یک اسم خاص، فقط **یک** معادل فارسی انتخاب کن و در **تمام** ترجمه از همان استفاده کن.
+    -   **مثال:** "Hikaru-chan" همیشه به "هیکارو چان" ترجمه شود. "Genesis" همیشه به "جنسیس" ترجمه شود.
+
+3.  **ترجمه افکت‌های صوتی:**
+    -   افکت‌های صوتی داخل ستاره (مانند *kira* یا *shakin*) را به شکل توصیفی به فارسی ترجمه کن.
+    -   **مثال:** \`*kira*\` می‌شود \`(صدای درخشش)\`. \`*shakin*\` می‌شود \`(لرزش)\`.
+
+4.  **قانون عدم سانسور (بسیار مهم):**
+    -   ترجمه باید **کاملاً بدون سانسور** باشد. هیچ کلمه، عبارت یا مفهومی، حتی اگر توهین‌آمیز، عامیانه یا مربوط به بزرگسالان باشد، نباید حذف یا تلطیف شود. به لحن و کلمات اصلی وفادار بمان.
+
+---
+
+### قوانین فنی (نقض‌نشدنی و مطلق)
+
+1.  **حفظ کامل ساختار VTT:** ساختار فایل، شامل شماره بلوک، زمان‌بندی (timestamps) و خطوط خالی بین بلوک‌ها، باید **دقیقاً و بدون هیچ تغییری** کپی شود.
+2.  **ممنوعیت مطلق تگ‌ها و یادداشت:** خروجی شما **نباید هرگز** حاوی هیچ تگ HTML/XML (مانند "<i>", "<b>") یا یادداشت‌های شخصی (مانند "لغت -> translation") باشد. این موارد را از متن اصلی حذف کن و در خروجی قرار نده.
+3.  **فقط و فقط خروجی VTT:** پاسخ شما باید **فقط** شامل ساختار VTT ترجمه شده باشد. هیچ متن اضافی، توضیح، مقدمه، یا هر کاراکتر دیگری خارج از ساختار زیرنویس نفرست.
+
+**مثال نهایی:**
+
+**ورودی:**
+1
+00:02:15.340 --> 00:02:17.880
+<i>Damn it, Hikaru-chan!</i> The Genesis project is real? *kira*
+
+**خروجی صحیح و بی‌نقص شما:**
+1
+00:02:15.340 --> 00:02:17.880
+لعنتی، هیکارو چان! پروژه جنسیس واقعیه؟ (صدای درخشش)
+
+---
+اکنون، با رعایت دقیق تمام این قوانین، این بخش از فایل .vtt را به بهترین شکل ممکن ترجمه کن:
+`;
+
+        class SubtitleProcessor {
             constructor() {
-                this.files = [];
-                this.isConverting = false;
-                this.currentLang = 'fa';
+                this.files = []; // For translation workflow
+                this.assBatchFiles = []; // For ASS batch editing
+                this.currentBatchOffset = 0; // In seconds
+                this.isProcessing = false;
+                this.geminiApiKey = '';
                 this.initializeElements();
                 this.bindEvents();
                 this.loadSettings();
             }
 
             initializeElements() {
-                // Main UI
+                // Main translation UI
                 this.fileInput = document.getElementById('fileInput');
-                this.convertBtn = document.getElementById('convertBtn');
-                this.fileListContainer = document.getElementById('fileListContainer');
+                this.processBtn = document.getElementById('processBtn');
                 this.fileList = document.getElementById('fileList');
                 this.emptyState = document.getElementById('emptyState');
-
-                // Sidenav
+                this.fileListContainer = document.getElementById('fileListContainer');
+                
+                // Sidenav and general modals
                 this.menuBtn = document.getElementById('menuBtn');
                 this.overlay = document.getElementById('overlay');
-                this.sidenav = document.getElementById('sidenav');
-                
-                // Modals
                 this.settingsBtn = document.getElementById('settingsBtn');
                 this.aboutBtn = document.getElementById('aboutBtn');
+                this.toolsBtn = document.getElementById('toolsBtn');
                 this.settingsModal = document.getElementById('settingsModal');
                 this.aboutModal = document.getElementById('aboutModal');
+                this.toolsModal = document.getElementById('toolsModal');
                 this.closeModalBtns = document.querySelectorAll('.modal .close-btn');
 
-                // Settings
+                // Settings modal
+                this.apiKeyInput = document.getElementById('apiKeyInput');
+                this.saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
                 this.themeToggle = document.getElementById('themeToggle');
-                this.langFaBtn = document.getElementById('lang-fa');
-                this.langEnBtn = document.getElementById('lang-en');
+
+                // Tools functionality
+                this.assFileInput = document.getElementById('assFileInput');
+                this.directConvertInput = document.getElementById('directConvertInput');
+                this.batchEditorModal = document.getElementById('batchEditorModal');
+                this.batchFileList = document.getElementById('batchFileList');
+                this.bulkTimeOffsetInput = document.getElementById('bulkTimeOffset');
+                this.offsetForwardBtn = document.getElementById('offsetForwardBtn');
+                this.offsetBackwardBtn = document.getElementById('offsetBackwardBtn');
+                this.processBatchBtn = document.getElementById('processBatchBtn');
+                this.totalOffsetDisplay = document.getElementById('totalOffsetDisplay');
             }
 
             bindEvents() {
+                // Translation flow
                 this.fileInput.addEventListener('change', (e) => this.handleFiles(e.target.files));
-                this.convertBtn.addEventListener('click', () => this.convertAllFiles());
+                this.processBtn.addEventListener('click', () => this.processAllFiles());
+                
+                // Settings
+                this.saveApiKeyBtn.addEventListener('click', () => this.saveApiKey());
+                this.themeToggle.addEventListener('change', () => this.toggleTheme());
 
-                // Menu
+                // Sidenav and Modals
                 this.menuBtn.addEventListener('click', () => this.toggleMenu());
                 this.overlay.addEventListener('click', () => this.toggleMenu());
-
-                // Modals
                 this.settingsBtn.addEventListener('click', () => this.showModal(this.settingsModal));
                 this.aboutBtn.addEventListener('click', () => this.showModal(this.aboutModal));
+                this.toolsBtn.addEventListener('click', () => this.showModal(this.toolsModal));
                 this.closeModalBtns.forEach(btn => btn.addEventListener('click', () => this.closeAllModals()));
 
-                // Settings
-                this.themeToggle.addEventListener('change', () => this.toggleTheme());
-                this.langFaBtn.addEventListener('click', () => this.changeLanguage('fa'));
-                this.langEnBtn.addEventListener('click', () => this.changeLanguage('en'));
+                // Tools flow
+                this.assFileInput.addEventListener('change', (e) => this.handleAssFileSelect(e));
+                this.directConvertInput.addEventListener('change', (e) => this.handleDirectConvertSelect(e));
+                this.offsetForwardBtn.addEventListener('click', () => this.updateBatchOffset(1));
+                this.offsetBackwardBtn.addEventListener('click', () => this.updateBatchOffset(-1));
+                this.processBatchBtn.addEventListener('click', () => this.applyAndDownloadBatch());
             }
             
-            // --- UI & Settings Logic ---
+            // --- UI & General Management ---
 
-            toggleMenu() {
-                document.body.classList.toggle('sidenav-open');
-            }
-
-            showModal(modal) {
-                this.toggleMenu();
-                modal.classList.add('show');
+            toggleMenu() { document.body.classList.toggle('sidenav-open'); }
+            
+            showModal(modal) { 
+                if (document.body.classList.contains('sidenav-open')) this.toggleMenu();
+                if (modal) modal.classList.add('show'); 
             }
 
             closeAllModals() {
-                this.settingsModal.classList.remove('show');
-                this.aboutModal.classList.remove('show');
+                document.querySelectorAll('.modal').forEach(modal => modal.classList.remove('show'));
+                // Reset file inputs to allow re-selection of the same file
+                this.assFileInput.value = '';
+                this.directConvertInput.value = '';
             }
 
             toggleTheme() {
                 document.body.classList.toggle('light-mode', !this.themeToggle.checked);
                 localStorage.setItem('theme', this.themeToggle.checked ? 'dark' : 'light');
             }
-            
-            changeLanguage(lang) {
-                this.currentLang = lang;
-                document.documentElement.lang = lang;
-                document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
-
-                this.langFaBtn.classList.toggle('active', lang === 'fa');
-                this.langEnBtn.classList.toggle('active', lang === 'en');
-                
-                document.querySelectorAll('[data-lang-key]').forEach(el => {
-                    const key = el.dataset.langKey;
-                    if (translations[lang][key]) {
-                        el.innerHTML = translations[lang][key];
-                    }
-                });
-                this.renderFileList(); // Re-render file list with new language
-                localStorage.setItem('language', lang);
-            }
 
             loadSettings() {
+                this.geminiApiKey = localStorage.getItem('geminiApiKey') || '';
+                this.apiKeyInput.value = this.geminiApiKey;
+                
                 const theme = localStorage.getItem('theme') || 'dark';
                 this.themeToggle.checked = theme === 'dark';
-                if (theme === 'light') {
-                    document.body.classList.add('light-mode');
-                }
-
-                const lang = localStorage.getItem('language') || 'fa';
-                this.changeLanguage(lang);
+                if (theme === 'light') document.body.classList.add('light-mode');
             }
 
-            // --- Core App Logic ---
+            saveApiKey() {
+                this.geminiApiKey = this.apiKeyInput.value.trim();
+                localStorage.setItem('geminiApiKey', this.geminiApiKey);
+                alert('کلید API ذخیره شد.');
+                this.closeAllModals();
+            }
+
+            downloadFile(content, filename) {
+                const bom = '\uFEFF';
+                const blob = new Blob([bom + content], { type: 'application/octet-stream;charset=utf-8' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }
+
+            // --- Time Conversion Helpers ---
+            
+            parseSrtVttTimeToMilliseconds(timeString) {
+                const [timePart] = timeString.trim().split(' ');
+                const parts = timePart.replace(',', '.').split(':');
+                let h = 0, m = 0, s_ms, s, ms;
+                if (parts.length === 3) [h, m, s_ms] = parts;
+                else if (parts.length === 2) [m, s_ms] = parts;
+                else return 0;
+                [s, ms] = (s_ms || "0.0").split('.');
+                return (parseInt(h) * 3600000) + (parseInt(m) * 60000) + (parseInt(s) * 1000) + (parseInt((ms || '0').padEnd(3, '0')));
+            }
+
+            parseAssTimeToMilliseconds(timeString) {
+                const parts = timeString.trim().split(':');
+                if (parts.length !== 3 || !parts[2].includes('.')) return 0;
+                const [s, cs] = parts[2].split('.');
+                return (parseInt(parts[0]) * 3600000) + (parseInt(parts[1]) * 60000) + (parseInt(s) * 1000) + (parseInt(cs) * 10);
+            }
+
+            millisecondsToAssTime(totalMilliseconds) {
+                if (totalMilliseconds < 0) totalMilliseconds = 0;
+                const h = Math.floor(totalMilliseconds / 3600000);
+                const m = Math.floor(totalMilliseconds / 60000) % 60;
+                const s = Math.floor(totalMilliseconds / 1000) % 60;
+                const cs = Math.floor((totalMilliseconds % 1000) / 10);
+                return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
+            }
+
+            // --- Translation Workflow ---
 
             handleFiles(fileList) {
                 const newFiles = Array.from(fileList)
                     .filter(file => file.name.toLowerCase().endsWith('.srt') || file.name.toLowerCase().endsWith('.vtt'))
                     .map(file => ({
+                        id: crypto.randomUUID(),
                         name: file.name,
                         file: file,
-                        isConverted: false,
-                        id: crypto.randomUUID()
+                        type: file.name.toLowerCase().endsWith('.vtt') ? 'vtt' : 'srt',
+                        status: 'ready',
+                        statusMessage: translations.fa.statusReady,
+                        isProcessed: false,
+                        hasError: false,
                     }));
-
-                if (newFiles.length === 0 && fileList.length > 0) {
-                    return;
-                }
 
                 this.files.push(...newFiles);
                 this.updateUI();
             }
-
+            
             updateUI() {
                 const hasFiles = this.files.length > 0;
                 this.fileListContainer.classList.toggle('hidden', !hasFiles);
                 this.emptyState.classList.toggle('hidden', hasFiles);
-                this.convertBtn.classList.toggle('hidden', !hasFiles);
+                this.processBtn.classList.toggle('hidden', !hasFiles);
                 this.renderFileList();
             }
-            
+
             renderFileList() {
                 this.fileList.innerHTML = '';
                 this.files.forEach(fileData => {
                     const fileItem = document.createElement('div');
-                    fileItem.className = `file-item ${fileData.isConverted ? 'converted' : ''}`;
-                    
-                    const statusText = fileData.isConverted ? translations[this.currentLang].statusConverted : translations[this.currentLang].statusReady;
+                    fileItem.className = 'file-item';
+                    fileItem.classList.toggle('converted', fileData.isProcessed);
+                    fileItem.classList.toggle('error', fileData.hasError);
+                    fileItem.dataset.id = fileData.id;
 
                     fileItem.innerHTML = `
                         <div class="file-info">
                             <div class="file-name">${fileData.name}</div>
-                            <div class="file-status">${statusText}</div>
+                            <div class="file-status">${fileData.statusMessage}</div>
                         </div>
                         <button class="delete-btn" data-id="${fileData.id}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
@@ -586,146 +621,316 @@
                         e.stopPropagation();
                         this.removeFile(e.currentTarget.dataset.id);
                     });
-
                     this.fileList.appendChild(fileItem);
                 });
+            }
+            
+            updateFileStatus(id, message, hasError = false) {
+                const fileData = this.files.find(f => f.id === id);
+                if(fileData) {
+                    fileData.statusMessage = message;
+                    fileData.hasError = hasError;
+                    const fileItem = this.fileList.querySelector(`.file-item[data-id="${id}"] .file-status`);
+                    if(fileItem) fileItem.textContent = message;
+                    const fileItemDiv = this.fileList.querySelector(`.file-item[data-id="${id}"]`);
+                    if(fileItemDiv) fileItemDiv.classList.toggle('error', hasError);
+                }
             }
 
             removeFile(id) {
                 this.files = this.files.filter(file => file.id !== id);
                 this.updateUI();
             }
-            
-            async convertAllFiles() {
-                if (this.isConverting) return;
-                
-                this.isConverting = true;
-                this.convertBtn.disabled = true;
 
-                const filesToConvert = this.files.filter(file => !file.isConverted);
-                for (const fileData of filesToConvert) {
-                    await this.convertFile(fileData);
-                    fileData.isConverted = true;
-                    this.renderFileList();
+            async processAllFiles() {
+                if (this.isProcessing) return;
+                
+                const filesToProcess = this.files.filter(f => !f.isProcessed && !f.hasError);
+                if (filesToProcess.length > 0 && !this.geminiApiKey) {
+                    alert(translations.fa.errorApiKey);
+                    return;
                 }
 
-                this.isConverting = false;
-                this.convertBtn.disabled = false;
-            }
+                this.isProcessing = true;
+                this.processBtn.disabled = true;
 
-            async convertFile(fileData) {
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        try {
-                            const content = e.target.result;
-                            const assContent = this.convertToAss(content);
-                            this.downloadFile(assContent, fileData.name.replace(/\.(srt|vtt)$/i, '.ass'));
-                            resolve();
-                        } catch (error) {
-                            console.error("Conversion error:", error);
-                            resolve();
-                        }
-                    };
-                    reader.onerror = () => {
-                        console.error("File reading error");
-                        resolve();
-                    };
-                    reader.readAsText(fileData.file, 'UTF-8');
-                });
-            }
-
-            convertToAss(content) {
-                const header = `[Script Info]
-Title: Converted by Subtitle Converter
-ScriptType: v4.00+
-WrapStyle: 0
-PlayResX: 1920
-PlayResY: 1080
-ScaledBorderAndShadow: yes
-
-[V4+ Styles]
-Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,Vazirmatn,55,&H00FFFFFF,&H0000FFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,2,1,2,30,30,30,1
-
-[Events]
-Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-`;
-                const lines = content.replace(/\r/g, '').split('\n');
-                const dialogues = [];
-                
-                for (let i = 0; i < lines.length; i++) {
-                    if (lines[i].includes('-->')) {
-                        const timeLine = lines[i];
-                        const timeParts = timeLine.split('-->');
-                        if (timeParts.length !== 2) continue;
-
-                        const start = this.formatAssTime(timeParts[0]);
-                        const end = this.formatAssTime(timeParts[1]);
-                        
-                        const textLines = [];
-                        for (let j = i + 1; j < lines.length; j++) {
-                            const textLine = lines[j];
-                            if (textLine.trim() === '' || textLine.includes('-->')) {
-                                break; 
-                            }
-                            textLines.push(textLine);
+                for (const fileData of filesToProcess) {
+                    try {
+                        let vttContent;
+                        const rawContent = await fileData.file.text();
+                        if (fileData.type === 'srt') {
+                           vttContent = this.srtToVtt(rawContent);
+                        } else {
+                           vttContent = rawContent;
                         }
                         
-                        if (textLines.length > 0) {
-                            const text = textLines.join('\\N');
-                            dialogues.push(`Dialogue: 0,${start},${end},Default,,0,0,0,,${text}`);
-                        }
+                        this.updateFileStatus(fileData.id, translations.fa.statusTranslating);
+                        const translatedVtt = await this.translateVttContent(vttContent, fileData.id);
                         
-                        i += textLines.length;
+                        this.updateFileStatus(fileData.id, translations.fa.statusConverting);
+                        const assContent = this.convertTranslatedVttToAss(translatedVtt);
+                        this.downloadFile(assContent, fileData.name.replace(/\.(srt|vtt)$/i, '.ass'));
+                        
+                        fileData.isProcessed = true;
+                        const fileItemDiv = this.fileList.querySelector(`.file-item[data-id="${fileData.id}"]`);
+                        if(fileItemDiv) fileItemDiv.classList.add('converted');
+                        this.updateFileStatus(fileData.id, translations.fa.statusConverted);
+
+                    } catch (error) {
+                        console.error("Error processing file:", fileData.name, error);
+                        this.updateFileStatus(fileData.id, `${translations.fa.statusError}: ${error.message}`, true);
                     }
                 }
-                
-                return header + dialogues.join('\n');
+
+                this.isProcessing = false;
+                this.processBtn.disabled = false;
             }
 
-            formatAssTime(timeString) {
-                const [timePart] = timeString.trim().split(' ');
-                const parts = timePart.replace(',', '.').split(':');
-                let h=0, m=0, s_ms, s, ms;
-
-                if (parts.length === 3) {
-                    [h, m, s_ms] = parts;
-                } else if (parts.length === 2) {
-                    [m, s_ms] = parts;
-                } else {
-                    return "0:00:00.00";
+            srtToVtt(srtContent) {
+                let vtt = "WEBVTT\n\n";
+                const blocks = srtContent.replace(/\r/g, '').split(/\n\n+/);
+                blocks.forEach(block => {
+                    if (block.trim()) {
+                        const lines = block.split('\n');
+                        const timeLine = lines.find(l => l.includes('-->'));
+                        if (timeLine) {
+                            const vttTimeLine = timeLine.replace(/,/g, '.');
+                            const textIndex = lines.indexOf(timeLine) + 1;
+                            const text = lines.slice(textIndex).join('\n');
+                            vtt += `${vttTimeLine}\n${text}\n\n`;
+                        }
+                    }
+                });
+                return vtt;
+            }
+            
+            async translateVttContent(content, fileId) {
+                const cleanedContent = content.replace(/<[^>]*>/g, '');
+                const blocks = cleanedContent.split(/\n\s*\n/);
+                let header = '';
+                if (blocks[0] && blocks[0].trim().startsWith('WEBVTT')) {
+                    header = blocks.shift() + '\n\n';
                 }
                 
-                [s, ms] = (s_ms || "0.0").split('.');
+                const CHUNK_SIZE = 25;
+                let translatedContent = [];
+
+                for (let i = 0; i < blocks.length; i += CHUNK_SIZE) {
+                    const chunk = blocks.slice(i, i + CHUNK_SIZE);
+                    const validChunk = chunk.filter(b => b.trim() !== '');
+                    if (validChunk.length === 0) continue;
+
+                    const chunkWithNumbers = validChunk.map((cue, index) => {
+                        const lines = cue.split('\n');
+                        if (!lines[0].includes('-->')) return cue;
+                        return `${i + index + 1}\n${cue}`;
+                    }).join('\n\n');
+                    
+                    this.updateFileStatus(fileId, `در حال ترجمه قطعه ${Math.floor(i / CHUNK_SIZE) + 1} از ${Math.ceil(blocks.length / CHUNK_SIZE)}`);
+                    
+                    const translatedChunk = await this.callGeminiApi(chunkWithNumbers);
+                    translatedContent.push(translatedChunk);
+                }
                 
-                h = parseInt(h) || 0;
-                m = parseInt(m) || 0;
-                s = parseInt(s) || 0;
-                ms = parseInt(ms) || 0;
-
-                const paddedMs = String(ms).padEnd(3, '0');
-                const centiseconds = paddedMs.substring(0, 2);
-
-                return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${centiseconds}`;
+                return header + translatedContent.join('\n\n');
             }
 
-            downloadFile(content, filename) {
-                const bom = '\uFEFF';
-                // Corrected MIME type to ensure .ass extension is kept
-                const blob = new Blob([bom + content], { type: 'application/octet-stream' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
+            async callGeminiApi(text) {
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.geminiApiKey}`;
+                
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: GEMINI_PROMPT + text }] }]
+                };
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorBody = await response.json();
+                    throw new Error(`API Error: ${errorBody.error?.message || 'Unknown error'}`);
+                }
+
+                const data = await response.json();
+                if (data.candidates && data.candidates.length > 0 && data.candidates[0].content.parts) {
+                    return data.candidates[0].content.parts[0].text;
+                }
+                throw new Error("پاسخ نامعتبر از API دریافت شد.");
+            }
+            
+            convertTranslatedVttToAss(vttContent) {
+                const header = `[Script Info]\nTitle: Translated by Subtitle Processor\nScriptType: v4.00+\nWrapStyle: 0\nPlayResX: 1920\nPlayResY: 1080\nScaledBorderAndShadow: yes\n\n[V4+ Styles]\nFormat: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\nStyle: Default,Vazirmatn,55,&H00FFFFFF,&H0000FFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,2,1,2,30,30,30,1\n\n[Events]\nFormat: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n`;
+                const blocks = vttContent.replace(/\r/g, '').split(/\n\n+/);
+                const cues = [];
+
+                for (const block of blocks) {
+                    const lines = block.trim().split('\n');
+                    const timeLine = lines.find(line => line.includes('-->'));
+                    if (!timeLine) continue;
+
+                    const textLines = lines.slice(lines.indexOf(timeLine) + 1).filter(line => line.trim() !== '');
+                    if (textLines.length > 0) {
+                        const [start, end] = timeLine.split('-->').map(t => t.trim());
+                        cues.push({
+                            start: this.millisecondsToAssTime(this.parseSrtVttTimeToMilliseconds(start)),
+                            end: this.millisecondsToAssTime(this.parseSrtVttTimeToMilliseconds(end)),
+                            text: textLines.join('\\N')
+                        });
+                    }
+                }
+
+                if (cues.length === 0) return header;
+
+                let dialogueLines = cues.map(cue => `Dialogue: 0,${cue.start},${cue.end},Default,,0,0,0,,${cue.text}`);
+                
+                // Add credits
+                const creditText = `{\\an8\\fs35}(ترجمه از ابوالفضل)`;
+                const creditDuration = 10000; // 10 seconds in ms
+                dialogueLines.push(`Dialogue: 0,0:00:00.00,${this.millisecondsToAssTime(creditDuration)},Default,,0,0,0,,${creditText}`);
+                const lastEndTimeMs = this.parseAssTimeToMilliseconds(cues[cues.length - 1].end);
+                dialogueLines.push(`Dialogue: 0,${this.millisecondsToAssTime(lastEndTimeMs)},${this.millisecondsToAssTime(lastEndTimeMs + creditDuration)},Default,,0,0,0,,${creditText}`);
+                
+                dialogueLines.sort((a, b) => {
+                    const timeA = this.parseAssTimeToMilliseconds(a.split(',')[1]);
+                    const timeB = this.parseAssTimeToMilliseconds(b.split(',')[1]);
+                    return timeA - timeB;
+                });
+
+                return header + dialogueLines.join('\n');
+            }
+            
+            // --- ASS Batch Editing Workflow ---
+
+            handleAssFileSelect(event) {
+                const files = Array.from(event.target.files);
+                if (files.length > 0) {
+                    this.closeAllModals();
+                    this.setupAndShowAssBatchModal(files);
+                }
+            }
+
+            setupAndShowAssBatchModal(files) {
+                this.assBatchFiles = files;
+                this.currentBatchOffset = 0;
+                this.updateOffsetDisplay();
+
+                this.batchFileList.innerHTML = '';
+                files.forEach(file => {
+                    const li = document.createElement('li');
+                    li.textContent = file.name;
+                    this.batchFileList.appendChild(li);
+                });
+                this.showModal(this.batchEditorModal);
+            }
+
+            updateBatchOffset(direction) {
+                const offsetValue = parseFloat(this.bulkTimeOffsetInput.value) || 0;
+                this.currentBatchOffset += (offsetValue * direction);
+                this.updateOffsetDisplay();
+            }
+
+            updateOffsetDisplay() {
+                const sign = this.currentBatchOffset >= 0 ? '+' : '';
+                const displayValue = Number(this.currentBatchOffset.toFixed(2));
+                this.totalOffsetDisplay.textContent = `${translations.fa.offsetLabel}${sign}${displayValue} ثانیه`;
+            }
+            
+            applyAndDownloadBatch() {
+                const offsetMilliseconds = this.currentBatchOffset * 1000;
+                if (this.assBatchFiles.length === 0) { this.closeAllModals(); return; }
+
+                this.assBatchFiles.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const content = e.target.result;
+                        const adjustedContent = this.adjustAssTime(content, offsetMilliseconds);
+                        this.downloadFile(adjustedContent, file.name);
+                    };
+                    reader.readAsText(file, 'UTF-8');
+                });
+                this.closeAllModals();
+            }
+
+            adjustAssTime(content, offsetMilliseconds) {
+                if (offsetMilliseconds === 0) return content;
+                const lines = content.split('\n');
+                const resultLines = lines.map(line => {
+                    if (!line.toLowerCase().startsWith('dialogue:')) return line;
+                    
+                    const parts = line.split(',');
+                    if (parts.length < 3) return line;
+
+                    let startMs = this.parseAssTimeToMilliseconds(parts[1]) + offsetMilliseconds;
+                    let endMs = this.parseAssTimeToMilliseconds(parts[2]) + offsetMilliseconds;
+                    
+                    if (startMs < 0) startMs = 0;
+                    if (endMs < 0) endMs = 0;
+                    if (startMs > endMs) endMs = startMs;
+
+                    parts[1] = this.millisecondsToAssTime(startMs);
+                    parts[2] = this.millisecondsToAssTime(endMs);
+
+                    return parts.join(',');
+                });
+                return resultLines.join('\n');
+            }
+
+            // --- Direct SRT/VTT to ASS Conversion Workflow ---
+
+            handleDirectConvertSelect(event) {
+                const files = Array.from(event.target.files);
+                if (files.length > 0) {
+                    this.closeAllModals();
+                    this.processDirectConversion(files);
+                }
+            }
+            
+            processDirectConversion(files) {
+                files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const content = e.target.result;
+                        const type = file.name.toLowerCase().endsWith('.srt') ? 'srt' : 'vtt';
+                        const assContent = this.directConvertToAss(content, type);
+                        const outputFilename = file.name.replace(/\.(srt|vtt)$/i, '.ass');
+                        this.downloadFile(assContent, outputFilename);
+                    };
+                    reader.readAsText(file, 'UTF-8');
+                });
+                alert(`${files.length} فایل با موفقیت تبدیل و دانلود شد.`);
+            }
+
+            directConvertToAss(content, type) {
+                const header = `[Script Info]\nTitle: Converted by Subtitle Processor\nScriptType: v4.00+\nWrapStyle: 0\nPlayResX: 1920\nPlayResY: 1080\nScaledBorderAndShadow: yes\n\n[V4+ Styles]\nFormat: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\nStyle: Default,Vazirmatn,55,&H00FFFFFF,&H0000FFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,2,1,2,30,30,30,1\n\n[Events]\nFormat: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n`;
+                
+                const vttContent = type === 'srt' ? this.srtToVtt(content) : content;
+                const blocks = vttContent.replace(/\r/g, '').split(/\n\n+/);
+                const dialogues = [];
+
+                for (const block of blocks) {
+                    const lines = block.trim().split('\n');
+                    const timeLine = lines.find(line => line.includes('-->'));
+                    if (!timeLine) continue;
+
+                    const textLines = lines.slice(lines.indexOf(timeLine) + 1).filter(line => line.trim() !== '');
+                    if (textLines.length > 0) {
+                        const [start, end] = timeLine.split('-->').map(t => t.trim());
+                        const startMs = this.parseSrtVttTimeToMilliseconds(start);
+                        const endMs = this.parseSrtVttTimeToMilliseconds(end);
+                        const text = textLines.join('\\N').replace(/<[^>]*>/g, "");
+                        dialogues.push(`Dialogue: 0,${this.millisecondsToAssTime(startMs)},${this.millisecondsToAssTime(endMs)},Default,,0,0,0,,${text}`);
+                    }
+                }
+                return header + dialogues.join('\n');
             }
         }
 
-        new SubtitleConverter();
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            new SubtitleProcessor();
+        });
     </script>
 </body>
 </html>
