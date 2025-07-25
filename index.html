@@ -397,7 +397,7 @@
                 menu: "منو",
                 settings: "تنظیمات",
                 about: "درباره برنامه",
-                version: "نسخه 1.0.4",
+                version: "نسخه 1.1.1",
                 appTitle: "تبدیل زیرنویس",
                 noFiles: "هیچ فایلی انتخاب نشده است.",
                 selectFile: "انتخاب فایل",
@@ -406,7 +406,7 @@
                 language: "زبان",
                 aboutLine1: "این برنامه ابزاری کارآمد برای تبدیل زیرنویس‌ها از فرمت‌های VTT و SRT به ASS است. با استفاده از این برنامه، کاربران می‌توانند به راحتی و سریعاً فرمت زیرنویس‌های خود را به قالبی حرفه‌ای و مناسب برای نمایش‌های پیشرفته تغییر دهند. این ابزار برای کاربران علاقه‌مند به دقت و کیفیت نمایش زیرنویس، انتخابی ایده‌آل است.",
                 aboutLine2: "توسعه داده شده توسط <strong>ابوالفضل مقدری</strong>.",
-                aboutVersion: "نسخه فعلی: <strong>1.0.4</strong>",
+                aboutVersion: "نسخه فعلی: <strong>1.1.1</strong>",
                 visitWebsite: "وب سایت تبدیل زیرنویس",
                 statusConverted: "✅ تبدیل شده",
                 statusReady: "⏳ آماده تبدیل",
@@ -415,7 +415,7 @@
                 menu: "Menu",
                 settings: "Settings",
                 about: "About App",
-                version: "Version 1.0.4",
+                version: "Version 1.1.1",
                 appTitle: "Subtitle Converter",
                 noFiles: "No file selected.",
                 selectFile: "Select File",
@@ -424,7 +424,7 @@
                 language: "Language",
                 aboutLine1: "This program is an efficient tool for converting subtitles from VTT and SRT formats to ASS. Using this application, users can easily and quickly change their subtitle format to a professional and suitable template for advanced displays. This tool is an ideal choice for users interested in the accuracy and quality of subtitle display.",
                 aboutLine2: "Developed by <strong>Abolfazl Moghadari</strong>.",
-                aboutVersion: "Current Version: <strong>1.0.4</strong>",
+                aboutVersion: "Current Version: <strong>1.1.1</strong>",
                 visitWebsite: "Subtitle Converter Website",
                 statusConverted: "✅ Converted",
                 statusReady: "⏳ Ready to convert",
@@ -628,6 +628,7 @@
                         }
                     };
                     reader.onerror = () => {
+                        console.error("File reading error");
                         resolve();
                     };
                     reader.readAsText(fileData.file, 'UTF-8');
@@ -650,35 +651,37 @@ Style: Default,Vazirmatn,55,&H00FFFFFF,&H0000FFFF,&H00000000,&H64000000,-1,0,0,0
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 `;
-                const dialogues = content
-                    .replace(/\r/g, '')
-                    .replace(/WEBVTT\s*/, '')
-                    .split('\n\n')
-                    .map(block => {
-                        const lines = block.trim().split('\n');
-                        if (lines.length < 2) return null;
-
-                        let timeLineIndex = lines.findIndex(line => line.includes('-->'));
-                        if (timeLineIndex === -1) return null;
-                        
-                        const timeLine = lines[timeLineIndex];
-                        const textLines = lines.slice(timeLineIndex + 1);
-
+                const lines = content.replace(/\r/g, '').split('\n');
+                const dialogues = [];
+                
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].includes('-->')) {
+                        const timeLine = lines[i];
                         const timeParts = timeLine.split('-->');
-                        if (timeParts.length !== 2) return null;
+                        if (timeParts.length !== 2) continue;
 
                         const start = this.formatAssTime(timeParts[0]);
                         const end = this.formatAssTime(timeParts[1]);
-                        const text = textLines.join('\\N');
-
-                        if (!text) return null;
-
-                        return `Dialogue: 0,${start},${end},Default,,0,0,0,,${text}`;
-                    })
-                    .filter(Boolean)
-                    .join('\n');
+                        
+                        const textLines = [];
+                        for (let j = i + 1; j < lines.length; j++) {
+                            const textLine = lines[j];
+                            if (textLine.trim() === '' || textLine.includes('-->')) {
+                                break; 
+                            }
+                            textLines.push(textLine);
+                        }
+                        
+                        if (textLines.length > 0) {
+                            const text = textLines.join('\\N');
+                            dialogues.push(`Dialogue: 0,${start},${end},Default,,0,0,0,,${text}`);
+                        }
+                        
+                        i += textLines.length;
+                    }
+                }
                 
-                return header + dialogues;
+                return header + dialogues.join('\n');
             }
 
             formatAssTime(timeString) {
@@ -686,9 +689,13 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                 const parts = timePart.replace(',', '.').split(':');
                 let h=0, m=0, s_ms, s, ms;
 
-                if (parts.length === 3) { [h, m, s_ms] = parts; } 
-                else if (parts.length === 2) { [m, s_ms] = parts; } 
-                else { return "0:00:00.00"; }
+                if (parts.length === 3) {
+                    [h, m, s_ms] = parts;
+                } else if (parts.length === 2) {
+                    [m, s_ms] = parts;
+                } else {
+                    return "0:00:00.00";
+                }
                 
                 [s, ms] = (s_ms || "0.0").split('.');
                 
@@ -705,10 +712,11 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
             downloadFile(content, filename) {
                 const bom = '\uFEFF';
+                // Corrected MIME type to ensure .ass extension is kept
                 const blob = new Blob([bom + content], { type: 'application/octet-stream' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
-a.href = url;
+                a.href = url;
                 a.download = filename;
                 document.body.appendChild(a);
                 a.click();
@@ -721,4 +729,3 @@ a.href = url;
     </script>
 </body>
 </html>
-
